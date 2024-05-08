@@ -117,6 +117,20 @@ player	= {
 
 }
 
+-- map class
+
+map = {
+	width = 12,
+	hight = 12,
+	map = [],
+	init = function(room_count)
+		
+	
+	end
+	
+
+}
+
 
 
 
