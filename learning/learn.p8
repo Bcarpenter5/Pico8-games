@@ -6,12 +6,12 @@ __lua__
 function _init()
 	player.init()
 	player.set_location(16,16)
+	camera(-16,-16)
 
 end
 
 function _update()
 	player.move()
-
 end
 
 function _draw()
@@ -119,11 +119,20 @@ player	= {
 
 -- map class
 
-map = {
+_map = {
 	width = 12,
 	hight = 12,
-	map = [],
+	map = {},
 	init = function(room_count)
+		_map	= self
+		self.map = {}
+		for i = 1, room_count do
+			room = {}
+			for j = 1, self.width * self.hight do
+				add(room, 0)
+			end
+			add(self.map, room)
+		end
 		
 	
 	end
