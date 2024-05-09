@@ -53,6 +53,8 @@ cls()
 -- draw the map
 map()
 
+room:draw()
+
 
 
 -- draw the sprites
@@ -63,7 +65,7 @@ sprite_timer += 1
 
 	-- print the debug text
 if	debug != nil then
-	print(debug,-4*8,-3*8,7)
+	print(debug,camera_offset.x,camera_offset.y,7)
 end
 
 end
@@ -107,6 +109,7 @@ function is_door(x,y)
 	-- check if the tile is a door
 	return fget(get_tile(x,y),1)
 end
+
 
 
 
@@ -206,7 +209,8 @@ function player:move()
 		-- play the door sound
 		-- open the door
 		-- play the door open sound
-		--
+
+		room:move(dir[1],dir[2])
 		return
 	end
 
@@ -274,7 +278,7 @@ end
 -- create the room
 room = {}
 room.x = 5
-room.y = 7
+room.y = 6
 room.w = 9
 room.h = 7
 room.map =	{
@@ -290,38 +294,47 @@ room.map =	{
 
 function room:draw()
 	-- draw the room
+	x = self.x
+	y = self.y
 
+	debug = x..","..y
 
 	-- set the top door
-	if self.map[x][y-1] == 1 then
-		mset(ceil(self.w/2),0,3)
+	if  y-1 > 1 or  self.map[y-1][x] == 1 then
+		mset(flr(self.w/2),0,3)
 	else
-		mset(ceil(self.w/2),0,1)
+		mset(flr(self.w/2),0,1)
+	end
+
+	-- set the bottom door
+	if y+2 <= self.h and  self.map[y][x+1] == 1 then
+		mset(flr(self.w/2),self.h-1,2)
+	else
+		mset(flr(self.w/2),self.h-1,1)
 	end
 
 	--set right door
-	if self.map[x+1][y] == 1 then
-		mset(self.w-1,ceil(self.h/2),5)
+	if x+2 <= self.w and  self.map[x+1][y] == 1 then
+		mset(self.w-1,flr(self.h/2),5)
 	else
-		mset(self.w-1,ceil(self.h/2),1)
+		mset(self.w-1,flr(self.h/2),1)
 	end
 
-	--	set the bottom door
-	if self.map[x][y+1] == 1 then
-		mset(ceil(self.w/2),self.h-1,3)
+	--	set left door
+	if	x-1 > 1 and 	self.map[y][x-1] == 1 then
+		mset(0,flr(self.h/2),4)
 	else
-		mset(ceil(self.w/2),self.h-1,1)
+		mset(0,flr(self.h/2),1)
 	end
 
-	-- set the left door
-	if	self.map[x-1][y] == 1 then
-		mset(0,ceil(self.h/2),2)
-	else
-		mset(0,ceil(self.h/2),1)
-	end
 end
 
 
+	function room:move(dir_x,dir_y)
+		-- add the x and y to the room
+		self.x += dir_x
+		self.y += dir_y
+	end
 
 -- dungeon timer class
 
@@ -345,9 +358,9 @@ end
 	end
 
 	function take_off_timer:draw()
-		debug = "hello"
-		print("time: "..flr(self.remaining_time),camera_offset.x+5*8,camera_offset.y,7)
+		print("time: "..flr(self.remaining_time),camera_offset.x+10*8,camera_offset.y,7)
 	end
+
 
 
 
