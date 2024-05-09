@@ -8,30 +8,32 @@ __lua__
 function _init()
 	print("maze runner")
 	-- set the sprites array
-sprite_timer = 0
-sprites = {}
--- set the debug variable will print if not nil
-debug = nil
-index_for_debug = 0
+	sprite_timer = 0
+	sprites = {}
+	-- set the debug variable will print if not nil
+	debug = nil
+	index_for_debug = 0
 
--- create the player
-player:init(4*8,4*8)
-player.movement_speed = 1.5
-
--- create the room
-room = {}
-room.w = 9
-room.h = 7
+	-- create the player
+	player:init(4*8,4*8)
+	player.movement_speed = 1.5
 
 
-
+	take_off_timer:init()
 
 
 -- move the camera 
-camera(-4*8,-3*8)
+camera_offset = {}
+camera_offset.x = -16
+camera_offset.y = -16
+camera(camera_offset.x,camera_offset.y)
 
 
 add(sprites,player)
+add(sprites,take_off_timer)
+
+
+
 -- play track one
 music(1)
 cls()
@@ -41,8 +43,7 @@ end
 
 function _update()
 	player:move()
-
-
+	take_off_timer:update()
 
 end
 
@@ -56,6 +57,7 @@ sprite_timer += 1
 	for s in all(sprites) do
 		s:draw()
 	end
+	-- take_off_timer:draw()
 
 
 	-- print the debug text
@@ -178,13 +180,8 @@ function player:move()
 		end
 
 
-
-
-
-
 		-- check for colisions with doors
 	if	is_door( x_to,y_to) then
-		debug = "door"
 			-- set swipe flag
 			screen_swipe = true
 
@@ -210,7 +207,6 @@ function player:move()
 
 
 	 -- check for colisions with walls
-		debug = "x_to: "..x_to.." y_to: "..y_to
 		if	is_wall( x_to,y_to) then
 			dir = {0,0}
 			-- play the wall sound
@@ -260,7 +256,6 @@ function player:move()
 			self.flip = true
 		end
 
-	
 	-- if the	player is not moving
 	else
 
@@ -270,6 +265,84 @@ function player:move()
 	end
 end
 
+
+-- create the room
+room = {}
+room.x = 5
+room.y = 7
+room.w = 9
+room.h = 7
+room.map =	{
+	{0,0,0,0,0,2,0,0,0},
+	{0,0,0,0,1,1,0,0,0},
+	{0,0,0,0,1,0,0,0,0},
+	{0,1,1,1,1,0,0,0,0},
+	{0,1,0,0,1,1,1,1,0},
+	{0,1,1,1,1,1,0,1,0},
+	{0,0,0,0,1,1,1,1,0}
+}
+
+
+function room:draw()
+	-- draw the room
+
+
+	-- set the top door
+	if self.map[x][y-1] == 1 then
+		mset(ceil(self.w/2),0,3)
+	else
+		mset(ceil(self.w/2),0,1)
+	end
+
+	--set right door
+	if self.map[x+1][y] == 1 then
+		mset(self.w-1,ceil(self.h/2),5)
+	else
+		mset(self.w-1,ceil(self.h/2),1)
+	end
+
+	--	set the bottom door
+	if self.map[x][y+1] == 1 then
+		mset(ceil(self.w/2),self.h-1,3)
+	else
+		mset(ceil(self.w/2),self.h-1,1)
+	end
+
+	-- set the left door
+	if	self.map[x-1][y] == 1 then
+		mset(0,ceil(self.h/2),2)
+	else
+		mset(0,ceil(self.h/2),1)
+	end
+end
+
+
+
+-- dungeon timer class
+
+	-- time in dungeon  variables
+	take_off_timer = {}
+	take_off_timer.start_time	= 0
+	take_off_timer.duration = 120
+	take_off_timer.start = function()
+		take_off_timer.start_time = time()
+	end
+
+	function take_off_timer:init()
+		self.elapsed_time = 0
+		self.remaining_time = self.duration
+		self.start()
+	end
+
+	function take_off_timer:update()
+		self.elapsed_time = time() - self.start_time 
+		self.remaining_time = self.duration - self.elapsed_time
+	end
+
+	function take_off_timer:draw()
+		debug = "hello"
+		print("time: "..flr(self.remaining_time),camera_offset.x+5*8,camera_offset.y,7)
+	end
 
 
 
