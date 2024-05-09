@@ -52,13 +52,14 @@ function _draw()
 cls()
 -- draw the map
 map()
+
+
+
 -- draw the sprites
 sprite_timer += 1
 	for s in all(sprites) do
 		s:draw()
 	end
-	-- take_off_timer:draw()
-
 
 	-- print the debug text
 if	debug != nil then
@@ -171,13 +172,17 @@ function player:move()
 		x_to = self.x + dir[1] * self.movement_speed
 	elseif dir[1] > 0 then
 		x_to = self.x + dir[1] * self.movement_speed + self.w
+	else 
+		x_to = self.x + 4
 	end
 
 	if	dir[2] <	0 then
 		y_to = self.y + dir[2] * self.movement_speed
 	elseif dir[2] > 0 then
 		y_to = self.y + dir[2] * self.movement_speed + self.h
-		end
+	else
+		y_to = self.y + 4
+	end
 
 
 		-- check for colisions with doors
