@@ -7,19 +7,12 @@ __lua__
 
 -- init -------------------------------------------------------------------------
 function _init()
-
-poke(0x5f5c,255) -- set the btnp to not loop
-poke(0x5f5d,255) -- 
-
-
-score = 0 
-
-
 	-- set the sprites array
 	sprite_timer = 0
 	sprites = {}
-
-	screen_swipe = false
+	-- set the debug variable will print if not nil
+	debug = nil
+	index_for_debug = 0
 
 	-- create the player
 	player:init(4*8,4*8)
@@ -34,12 +27,15 @@ score = 0
 
 	-- move the camera 
 	camera_offset = {}
+	camera_offset.x = -16
+	camera_offset.y = -16
 	camera(camera_offset.x,camera_offset.y)
 
 	add(sprites,player)
 	add(sprites,take_off_timer)
 
 	coin = loot:create(2*8,2*8)
+	add(sprites,coin)
 
 	-- play track one
 	music(1)
@@ -52,14 +48,9 @@ end
 function _update()
 
 
-	if screen_swipe then return end
-
-
 
  -- handle the camera
 	set_map_camera()
-
-
 
 
 	-- update the game stats
@@ -67,9 +58,6 @@ function _update()
 
 	-- update player movement
 	player:move()
-	loot:update()
-
-	player:update()
 
 	for s in all(sprites) do
 		s:update()
@@ -81,17 +69,7 @@ end
 --	_draw -------------------------------------------------------------------------
 function _draw()
 	-- increment the sprite timer
-
-
-
-	
-	if swipe() then
-		return
-	end
 	cls()
-
-
-
 	-- draw the map
 	camera(camera_offset.x,camera_offset.y)
 	map()
@@ -106,12 +84,10 @@ function _draw()
 		s:draw()
 	end
 
-
-
-	if debug != nil then
+	-- print the debug text
+	if	debug != nil then
 		print(debug,camera_offset.x,camera_offset.y,7)
 	end
-
 end
 
 
@@ -177,7 +153,7 @@ function set_map_camera()
 		return
 	end
 	else
-		camera_offset.x = -24
+		camera_offset.x = -20
 		camera_offset.y = -16
 	end
 end
@@ -195,25 +171,13 @@ loot = {
 }
 
 loot.count = 0
-loot.last_drop = 0
 
-function loot:drop(amount, save_loot)
-	save_loot = save_loot or false
-
-	amount = amount or 1
-	if self.count > 0 and time() - loot.last_drop  > 0.01 then
-		self.count -= amount
-		-- # create the loot
-		if	save_loot then
-			score += amount
-		else
-			l = loot:create(player.x-1*8,player.y)
-		end
-		loot.last_drop = time()
+function loot:drop()
+	if self.count > 0 then
+		self.count -= 1
 		return true
 	end
 end
-
 
 
 function loot:pickup(amount)
@@ -226,7 +190,7 @@ end
 
 -- calculate the weight of the player
 function loot:update()
-	player.movement_speed =  ((player.movement_max_speed*10 - self.count)	/ 10)
+	player.movement_speed =  (player.movement_max_speed*10 - self.count)	/ 10
 end
 
 -- create loot in x,y
@@ -237,7 +201,6 @@ function loot:create(x,y,sprite_id,room_x,room_y)
 	s.room = {}
 	s.room.x	=	room_x or room.x
 	s.room.y	=	room_y	or room.y
-	add(sprites,s)
 	return s
 end
 
@@ -260,34 +223,6 @@ function is_player(x,y)
 	return check_hit_box(player.x,player.y,player.w,player.h,x,y,8,8)
 end
 
-
-
-
-function swipe()
-
-
-	if screen_swipe then
-		screen_swipe_index += 4
-		if screen_swipe_index < 8*8 then
-			rectfill(camera_offset.x,camera_offset.y+8,camera_offset.x+8 + screen_swipe_index,camera_offset.y + 12*8,0)
-			-- from oposite side
-			rectfill(camera_offset.x+16*8 - screen_swipe_index,camera_offset.y+8,camera_offset.x+16*8,camera_offset.y + 12*8,0)
-			--	from top
-			rectfill(camera_offset.x,camera_offset.y+8,camera_offset.x+16*8,camera_offset.y + 8 + screen_swipe_index,0)
-			-- from bottom
-			rectfill(camera_offset.x,camera_offset.y+12*8 - screen_swipe_index,camera_offset.x+16*8,camera_offset.y + 12*8,0)
-		else
-			screen_swipe = false
-			screen_swipe_index = 0
-			set_map_camera()
-			room:draw()
-		end
-	else
-		screen_swipe_index = 0
-	end
-
-	return screen_swipe
-end
 
 
 
@@ -428,17 +363,6 @@ function player:init(x,y)
 	self.flip = false
 end
 
-function player:update()
-	-- check if action button is pressed
-	debug = loot.count .. " weight: " .. player.movement_speed
-	if btnp(5) then 
-		loot:drop(1)
-	end
-end
-
-
-
-
 
 function player:move()
 	local dir = get_dir()
@@ -518,7 +442,7 @@ function player:move()
 
 
 	if is_drop_off(	x_to,y_to) then
-		loot:drop(loot.count, true)
+		loot:drop(loot.count)
 	end
 
 	-- check for colisions with walls
