@@ -2,7 +2,7 @@ pico-8 cartridge // http://www.pico-8.com
 version 42
 __lua__
 -- scavenger
--- code by brandon - music by nathan
+-- by brandon - music by nathan
 --
 
 -- init -------------------------------------------------------------------------
