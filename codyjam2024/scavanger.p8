@@ -1,8 +1,8 @@
 pico-8 cartridge // http://www.pico-8.com
 version 42
 __lua__
--- maze runner 
--- by brandon 
+-- scavenger
+-- code by brandon - music by nathan
 --
 
 -- init -------------------------------------------------------------------------
