@@ -31,11 +31,20 @@ function _update()
 		return
 	end
 
+
+	if not stat(56) then
+		music(0)
+	end
+
+
+
 	if not stalker_spawned and time()-round_start > 60 then 
 		st = stalker:new(pix(6),pix(4),room.first.x,room.first.y)
 		add(sprites,st)
 		stalker_spawned = true
 	end
+
+
 
 
 
@@ -1537,7 +1546,7 @@ function leave_screen_draw()
 	_y = camera_offset.y + pix(8)
 	_x2 = _x + pix(9)
 	_y2 = _y + pix(4)
-	if not stat(57) then
+	if not stat(56) then
 		music(23)
 	end
 	cls()
@@ -1583,7 +1592,7 @@ function title_screen_draw()
 
 	while not btnp(4) do
 
-		if not stat(57) then
+		if not stat(56) then
 			music(23)
 
 		end
@@ -2033,7 +2042,7 @@ __music__
 00 272f3031
 00 32331734
 00 35361037
-06 38393a3b
+02 38393a3b
 01 3c3d4040
 02 3e3f4040
 
