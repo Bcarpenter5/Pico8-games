@@ -10,6 +10,7 @@ function _init()
 	debug = nil
 
 
+	gameover = false
 
 poke(0x5f5c,255) -- set the btnp to not loop
 poke(0x5f5d,255) -- 
@@ -319,6 +320,7 @@ round_start	= time()
 
 
 gameover	= false
+-- gameover = true
 score = 0 
 
 	-- set the sprites array
@@ -846,6 +848,7 @@ player.dash_speed = 2
 player.dash_time = 0.5
 player.dash_cooldown = 2
 player.dash_timer = 0
+player.hit = false
 
 
 
@@ -859,6 +862,7 @@ function player:init(x,y)
 	self.invincible = false
 	self.dash_speed = 2
 	self.dash_time = 0.5
+	
 	self.dash_cooldown = 2
 	self.dash_timer = 0
 	self.x = x
@@ -866,6 +870,8 @@ function player:init(x,y)
 	self.last_dir = {0,0}
 	self.flip = false
 	self.dead = false
+	self.hitted = false
+	self.hit_time = 0
 end
 
 function player:update()
@@ -874,6 +880,15 @@ function player:update()
 		self.dashing = false
 		self.invincible = false
 	end
+
+	if self.hitted	and time() - self.hit_time > 0.5 and not self.dashing then
+		self.hitted	= false
+		self.invincible = false
+	end
+
+
+
+
 	-- check if action button is pressed
 	if btnp(5) then 
 		loot:drop(1)
@@ -1037,6 +1052,9 @@ end
 
 function player:hit(dmg,x,y)
 	if not self.invincible then
+		self.hitted = true
+		self.hit_time = time()
+		self.invincible = true
 
 
 
@@ -1545,7 +1563,7 @@ function leave_screen_draw()
 	_x = camera_offset.x + pix(3)
 	_y = camera_offset.y + pix(8)
 	_x2 = _x + pix(9)
-	_y2 = _y + pix(4)
+	_y2 = _y + pix(6)
 	if not stat(56) then
 		music(23)
 	end
@@ -1561,7 +1579,8 @@ function leave_screen_draw()
 		print("you left",_x+pix(2.5),_y,7)
 	end
 
-	print("  ❎ to continue",_x+2,_y+flr(pix(2)),7)
+	print("  🅾️ to continue",_x+2,_y+flr(pix(2)),7)
+	print("  ❎ to menue",_x+2,_y+flr(pix(3)),7)
 end
 
 
@@ -1575,22 +1594,36 @@ function leave_screen_update()
 		set_up()
 		reset()
 		gameover_time = 0
+
+	elseif btnp(5) and time() - gameover_time > 1 then
+		reset()
+		title_screen_draw()
+
+		set_up()
+		gameover_time = 0
 	end
+
 end
 	
 
 
 function title_screen_draw()
+	local time_start = time()
 	-- set music to play
 	music(23)
-
-
 
 	local x	= pix(62)
 	local y = pix(3)
 	camera(x,y)
 
+	local index = 0
 	while not btnp(4) do
+		_update_buttons()
+		index += 1
+		if btnp(5) then
+			-- exit the game
+			extcmd("shutdown")
+		end
 
 		if not stat(56) then
 			music(23)
@@ -1624,9 +1657,10 @@ function title_screen_draw()
 		flip()
 	end
 
+	-- reset()
 	local timer = time()
 
-	while time() - timer < 3 do
+	while time() - timer < 3 and not gameover do
 		cls()
 
 		circfill(x+pix(12),y+pix(9),pix(2),5)
@@ -1638,20 +1672,16 @@ function title_screen_draw()
 
 
 		print("❎ drop 🅾️ dash",pix(4)+x,pix(10)+y,7)
+		rectfill(x+pix(2),y+pix(12),x+pix(13),y+pix(13.7),0)
+		print("return to the ship with",pix(2)+x,pix(12)+y,7)
+		print("as much loot as you can",pix(2)+x,pix(13)+y,7)
 
 		-- print("scavanger",pix(6)+x,pix(6)+y,7)
 
 		-- circ(x+pix(12),y+pix(9),pix(2),7)
 
-
-
-
 		flip()
 	end
-
-
-
-
 end
 
 
