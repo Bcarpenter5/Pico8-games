@@ -681,7 +681,7 @@ function stalker:update()
 	self:move()
 	if(is_player(self.x,self.y)) then
 		player:hit(self.dmg,self.dir.x,self.dir.y)
-		if loot.count == 0 and not player.invincible	then
+		if loot.count == 0 	then
 			gameover = true
 			player.dead = true
 		end
@@ -1414,8 +1414,8 @@ function stats:draw()
 	_score = score
 	_x = camera_offset.x
 	_y = camera_offset.y
-	rectfill(_x,_y,_x+pix(15),_y+pix(2)-6,0)
-	rect(_x,_y,_x+pix(15),_y+pix(2)-6,2)
+	rectfill(_x,_y,_x+pix(16)-2,_y+pix(2)-6,0)
+	rect(_x,_y,_x+pix(16)-2,_y+pix(2)-6,2)
 
 	t = take_off_timer.duration
 
@@ -1450,8 +1450,8 @@ function stats:draw()
   -- draw 
 	_y = camera_offset.y + pix(12) +1
 	-- draw a rectangle
-	rectfill(_x,_y,_x+pix(15),_y+pix(2),0)
-	rect(_x,_y,_x+pix(15),_y+pix(2),1)
+	rectfill(_x,_y,_x+pix(16)-2,_y+pix(2),0)
+	rect(_x,_y,_x+pix(16)-2,_y+pix(2),1)
 	-- print the stats
 	_y += 6
 
@@ -1650,10 +1650,10 @@ function title_screen_draw()
 		rectfill(x+pix(2),y+pix(12),x+pix(15),y+pix(17),0)
 
 
-		print("press ❎ to start",pix(2)+x,pix(12)+y,7)
-		print("press 🅾️ to exit",pix(2)+x,pix(13)+y,7)
+		print("press 🅾️ to start",pix(2)+x,pix(12)+y,7)
+		print("press ❎ to exit",pix(2)+x,pix(13)+y,7)
 		print("made by brandon carpenter",pix(2)+x,pix(14)+y,7)
-		print("music by nathan",pix(2)+x,pix(15)+y,7)
+		print("music by nathan heinbuch",pix(2)+x,pix(15)+y,7)
 		flip()
 	end
 
